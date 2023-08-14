@@ -1,44 +1,13 @@
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import Integer, Column, String
-from passlib.hash import bcrypt_sha256
+from models import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import relationship
-
-Base = declarative_base()
-
-
-class User(Base):
-    __tablename__ = "user"
-
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    username = Column(String(25), unique=True)
-    password = Column("password", String, nullable=False)
-
-    # contacts = relationship("Contact", backref="user", cascade="all, delete-orphan")
-
-    def set_password(self, password):
-        self.password = bcrypt_sha256.hash(password)
-
-    def check_password(self, password):
-        return bcrypt_sha256.verify(password, self.password)
-
-    def __repr__(self):
-        return (
-            f"id: {self.id}, "
-            f"firstname: {self.first_name}, "
-            f"lastname: {self.last_name}, "
-            f"username: {self.username}"
-        )
 
 
 class UserApp:
     def __init__(self):
-        self.engine = create_engine("sqlite:///database.db")
-        self.Session = sessionmaker(bind=self.engine)
-        self.session = self.Session()
+        self.engine = create_engine("sqlite:///user.db", echo=True)
+        Session = sessionmaker(bind=self.engine)
+        self.session = Session()
 
     def signup(self):
         first_name = input("Enter your first name: ")

@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 
+
 Base = declarative_base()
 
 
@@ -91,7 +92,13 @@ class UserApp:
     def add_contact(self, user):
         print("Add Contact")
         email = input("Enter email: ")
-        phone = input("Enter phone: ")
+
+        while True:
+            phone = input("Enter phone (10 digits): ")
+            if len(phone) != 10 or not phone.isdigit():
+                print("Invalid phone number. Please enter a 10- digit number.")
+            else:
+                break
         home_address = input("Enter home address: ")
 
         new_contact = Contact(
@@ -102,14 +109,26 @@ class UserApp:
         print("Contact added successfully!")
 
     def view_contacts(self, user):
-        print("View Contacts")
+        print("\n View Contacts\n")
         contacts = user.contacts
 
         if not contacts:
             print("You have no contacts.")
         else:
             for contact in contacts:
-                print(contact)
+                print(
+                    f"{contact.id}\n"
+                    f"Email: {contact.email}\n"
+                    f"Phone: {contact.phone}\n"
+                    f"Home Address: {contact.home_address}\n"
+                )
+
+    def delete_contact(self, user):
+        from contact_operations import delete_contact_by_id
+
+        self.view_contacts(user)
+        contact_id = input("Enter the ID of the contact to delete: ")
+        delete_contact_by_id(self.session, int(contact_id))
 
     def run_app(self):
         Base.metadata.create_all(bind=self.engine)
@@ -123,7 +142,9 @@ class UserApp:
                 user = self.login()
                 if user:
                     while True:
-                        print("1. Add Contact\n2. View Contacts\n3. Logout")
+                        print(
+                            "1. Add Contact\n2. View Contacts\n3. Delete Contact\n4. Logout"
+                        )
                         sub_choice = input("Enter your choice: ")
 
                         if sub_choice == "1":
@@ -131,6 +152,8 @@ class UserApp:
                         elif sub_choice == "2":
                             self.view_contacts(user)
                         elif sub_choice == "3":
+                            self.delete_contact(user)
+                        elif sub_choice == "4":
                             break
                         else:
                             print("Invalid choice. Please select a valid option.")

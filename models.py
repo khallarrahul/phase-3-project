@@ -1,5 +1,5 @@
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Integer, Column, String
+from sqlalchemy import Integer, Column, String, ForeignKey
 from passlib.hash import bcrypt_sha256
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -17,7 +17,7 @@ class User(Base):
     username = Column(String(25), unique=True)
     password = Column("password", String, nullable=False)
 
-    # contacts = relationship("Contact", backref="user", cascade="all, delete-orphan")
+    contacts = relationship("Contact", backref="user", cascade="all, delete-orphan")
 
     def set_password(self, password):
         self.password = bcrypt_sha256.hash(password)
@@ -31,6 +31,24 @@ class User(Base):
             f"firstname: {self.first_name}, "
             f"lastname: {self.last_name}, "
             f"username: {self.username}"
+        )
+
+
+class Contact(Base):
+    __tablename__ = "contact"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    home_address = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"id: {self.id}, "
+            f"email: {self.email}, "
+            f"phone: {self.phone}, "
+            f"home_address: {self.home_address}"
         )
 
 
@@ -65,9 +83,33 @@ class UserApp:
 
         if not user or not user.check_password(password):
             print("Invalid username or password.")
-            return
+            return None
 
         print(f"Welcome, {user.first_name}!")
+        return user
+
+    def add_contact(self, user):
+        print("Add Contact")
+        email = input("Enter email: ")
+        phone = input("Enter phone: ")
+        home_address = input("Enter home address: ")
+
+        new_contact = Contact(
+            email=email, phone=phone, home_address=home_address, user=user
+        )
+        self.session.add(new_contact)
+        self.session.commit()
+        print("Contact added successfully!")
+
+    def view_contacts(self, user):
+        print("View Contacts")
+        contacts = user.contacts
+
+        if not contacts:
+            print("You have no contacts.")
+        else:
+            for contact in contacts:
+                print(contact)
 
     def run_app(self):
         Base.metadata.create_all(bind=self.engine)
@@ -78,7 +120,20 @@ class UserApp:
             if choice == "1":
                 self.signup()
             elif choice == "2":
-                self.login()
+                user = self.login()
+                if user:
+                    while True:
+                        print("1. Add Contact\n2. View Contacts\n3. Logout")
+                        sub_choice = input("Enter your choice: ")
+
+                        if sub_choice == "1":
+                            self.add_contact(user)
+                        elif sub_choice == "2":
+                            self.view_contacts(user)
+                        elif sub_choice == "3":
+                            break
+                        else:
+                            print("Invalid choice. Please select a valid option.")
             elif choice == "3":
                 break
             else:

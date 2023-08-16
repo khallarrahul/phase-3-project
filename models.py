@@ -10,7 +10,7 @@ Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     first_name = Column(String, nullable=False)
@@ -36,17 +36,19 @@ class User(Base):
 
 
 class Contact(Base):
-    __tablename__ = "contact"
+    __tablename__ = "contacts"
 
     id = Column(Integer, primary_key=True)
+    full_name = Column(String(30), nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String, nullable=False)
     home_address = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     def __repr__(self):
         return (
             f"id: {self.id}, "
+            f"full_name: {self.full_name}"
             f"email: {self.email}, "
             f"phone: {self.phone}, "
             f"home_address: {self.home_address}"
@@ -91,6 +93,7 @@ class UserApp:
 
     def add_contact(self, user):
         print("Add Contact")
+        full_name = input("Enter Full Name of Contact: ")
         email = input("Enter email: ")
 
         while True:
@@ -102,7 +105,11 @@ class UserApp:
         home_address = input("Enter home address: ")
 
         new_contact = Contact(
-            email=email, phone=phone, home_address=home_address, user=user
+            email=email,
+            full_name=full_name,
+            phone=phone,
+            home_address=home_address,
+            user=user,
         )
         self.session.add(new_contact)
         self.session.commit()
@@ -113,11 +120,12 @@ class UserApp:
         contacts = user.contacts
 
         if not contacts:
-            print("You have no contacts.")
+            print("You have no contacts.\n")
         else:
             for contact in contacts:
                 print(
                     f"{contact.id}\n"
+                    f"{contact.full_name}\n"
                     f"Email: {contact.email}\n"
                     f"Phone: {contact.phone}\n"
                     f"Home Address: {contact.home_address}\n"

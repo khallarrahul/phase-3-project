@@ -1,43 +1,57 @@
-from models import User, UserApp
+from models import User, Contact, Message
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 
 print("Seeding DB....")
 
 engine = create_engine("sqlite:///database.db")
-
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# Delete existing data from all tables
+session.query(Message).delete()
+session.query(Contact).delete()
 session.query(User).delete()
 
-
-def input_user_data():
-    first_name = input("Enter first name: ")
-    last_name = input("Enter last name: ")
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    return {
-        "first_name": first_name,
-        "last_name": last_name,
-        "username": username,
-        "password": password,
-    }
-
+# Seed users
+users_data = [
+    {
+        "first_name": "John",
+        "last_name": "Doe",
+        "username": "johndoe",
+        "password": "password1",
+    },
+    {
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "username": "janesmith",
+        "password": "password2",
+    },
+]
 
 users = []
-
-while True:
-    user_data = input_user_data()
-    users.append(user_data)
-    another_user = input("Add another user? (y/n): ")
-    if another_user.lower() != "y":
-        break
-
-for user_data in users:
+for user_data in users_data:
     new_user = User(**user_data)
-    new_user.set_password(user_data["password"])  # Hash the password
+    new_user.set_password(user_data["password"])
+    users.append(new_user)
     session.add(new_user)
+
+# Seed contacts
+contacts_data = []
+
+contacts = []
+for contact_data in contacts_data:
+    new_contact = Contact(**contact_data)
+    contacts.append(new_contact)
+    session.add(new_contact)
+
+# Seed messages
+messages_data = []
+
+for message_data in messages_data:
+    new_message = Message(**message_data)
+    session.add(new_message)
 
 # Commit the changes to the database
 session.commit()

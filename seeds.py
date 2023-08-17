@@ -15,20 +15,7 @@ session.query(Contact).delete()
 session.query(User).delete()
 
 # Seed users
-users_data = [
-    {
-        "first_name": "John",
-        "last_name": "Doe",
-        "username": "johndoe",
-        "password": "password1",
-    },
-    {
-        "first_name": "Jane",
-        "last_name": "Smith",
-        "username": "janesmith",
-        "password": "password2",
-    },
-]
+users_data = []
 
 users = []
 for user_data in users_data:

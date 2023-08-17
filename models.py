@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import DateTime
 
+
 Base = declarative_base()
 
 
@@ -118,22 +119,51 @@ class UserApp:
         if not user or not user.check_password(password):
             print("Invalid username or password.")
             return None
-
-        print(f"Welcome, {user.first_name}!")
+        print("\n" * 40)
+        print(f"\nWelcome, {user.first_name}!")
         return user
 
+    def abort_with_menu(self):
+        print(
+            "\n(Enter 'MENU' to return to the main menu or press 'ENTER' to move forward)"
+        )
+        menu_input = input()
+        if menu_input.upper() == "MENU":
+            print("\nAborting to Main Menu...\n")
+            return True
+        else:
+            print("ENTER pressed. Continuing...\n")
+            return False
+
     def add_contact(self, user):
-        print("Add Contact")
+        print("\nAdd Contact")
+        if self.abort_with_menu():
+            return
+
         full_name = input("Enter Full Name of Contact: ")
+        if full_name.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
+
         email = input("Enter email: ")
+        if email.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
 
         while True:
             phone = input("Enter phone (10 digits): ")
+            if phone.upper() == "MENU":
+                print("\nAborting to Main Menu...")
+                return
             if len(phone) != 10 or not phone.isdigit():
-                print("Invalid phone number. Please enter a 10- digit number.")
+                print("Invalid phone number. Please enter a 10-digit number.")
             else:
                 break
+
         home_address = input("Enter home address: ")
+        if home_address.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
 
         new_contact = Contact(
             email=email,
@@ -163,15 +193,25 @@ class UserApp:
                 )
 
     def delete_contact(self, user):
+        if self.abort_with_menu():
+            return
         from contact_operations import delete_contact_by_id
 
         self.view_contacts(user)
         contact_id = input("Enter the ID of the contact to delete: ")
+        if contact_id.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
         delete_contact_by_id(self.session, int(contact_id))
 
     def send_message(self, sender):
+        if self.abort_with_menu():
+            return
         self.view_contacts(sender)
         receiver_id = input("Enter the ID of the contact to send the message to: ")
+        if receiver_id.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
         receiver = self.session.query(Contact).get(receiver_id)
         if not receiver:
             print("Contact not found.")
@@ -208,9 +248,35 @@ class UserApp:
         else:
             print("No messages sent.")
 
+    def view_received_messages(self, user):
+        received_messages = (
+            self.session.query(Message)
+            .join(Contact, Message.sender_id == Contact.id)
+            .filter(
+                Contact.phone == user.phone_number
+            )  # I want to filter by reciever's messages
+            .order_by(Message.timestamp)
+            .all()
+        )
+
+        if received_messages:
+            print("\nMessages received:")
+            for message in received_messages:
+                sender_contact = (
+                    self.session.query(Contact).filter_by(id=message.sender_id).first()
+                )
+                print(
+                    f"From: {sender_contact.full_name}\n"
+                    f"Timestamp: {message.timestamp}\n"
+                    f"Message: {message.message_text}\n"
+                )
+        else:
+            print("\nNo messages received.\n")
+
     def run_app(self):
         Base.metadata.create_all(bind=self.engine)
         while True:
+            print("\nContact Manager App\n")
             print("1. Signup\n2. Login\n3. Exit")
             choice = input("Enter your choice: ")
 
@@ -221,9 +287,9 @@ class UserApp:
                 if user:
                     while True:
                         print(
-                            "1. Add Contact\n2. View Contacts\n3. Delete Contact\n4. Send Message\n5. Check Sent Messages\n6. Logout"
+                            "1. Add Contact\n2. View Contacts\n3. Delete Contact\n4. Send Message\n5. Check Sent Messages\n6. View Received Messages\n7. Logout"
                         )
-                        sub_choice = input("Enter your choice: ")
+                        sub_choice = input("\nEnter your choice: ")
 
                         if sub_choice == "1":
                             self.add_contact(user)
@@ -236,10 +302,14 @@ class UserApp:
                         elif sub_choice == "5":
                             self.check_messages(user)
                         elif sub_choice == "6":
+                            self.view_received_messages(user)
+                        elif sub_choice == "7":
+                            print("\n" * 40)
                             break
                         else:
                             print("Invalid choice. Please select a valid option.")
             elif choice == "3":
+                print("\n" * 40)
                 break
             else:
                 print("Invalid choice. Please select a valid option.")

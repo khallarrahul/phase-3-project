@@ -79,20 +79,25 @@ class UserApp:
         self.session = self.Session()
 
     def signup(self):
-        first_name = input("Enter your first name: ")
-        last_name = input("Enter your last name: ")
-        phone_number = input("Enter your 10 digit phone number: ")
+        user_data = {}
+        user_data["first_name"] = input("Enter your first name: ")
+        user_data["last_name"] = input("Enter your last name: ")
+        user_data["phone_number"] = input("Enter your 10 digit phone number: ")
 
         existing_number = (
-            self.session.query(User).filter_by(phone_number=phone_number).first()
+            self.session.query(User)
+            .filter_by(phone_number=user_data["phone_number"])
+            .first()
         )
 
         if existing_number:
             print("Phone number already exists. Please choose a different username.")
             return
 
-        username = input("Enter a username: ")
-        existing_user = self.session.query(User).filter_by(username=username).first()
+        user_data["username"] = input("Enter a username: ")
+        existing_user = (
+            self.session.query(User).filter_by(username=user_data["username"]).first()
+        )
 
         if existing_user:
             print("Username already exists. Please choose a different username.")
@@ -100,10 +105,10 @@ class UserApp:
 
         password = input("Enter a password: ")
         new_user = User(
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
-            phone_number=phone_number,
+            first_name=user_data["first_name"],
+            last_name=user_data["last_name"],
+            username=user_data["username"],
+            phone_number=user_data["phone_number"],
         )
         new_user.set_password(password)
 
@@ -140,36 +145,37 @@ class UserApp:
         if self.abort_with_menu():
             return
 
-        full_name = input("Enter Full Name of Contact: ")
-        if full_name.upper() == "MENU":
+        contact_info = {}
+        contact_info["full_name"] = input("Enter Full Name of Contact: ")
+        if contact_info["full_name"].upper() == "MENU":
             print("\nAborting to Main Menu...")
             return
 
-        email = input("Enter email: ")
-        if email.upper() == "MENU":
+        contact_info["email"] = input("Enter email: ")
+        if contact_info["email"].upper() == "MENU":
             print("\nAborting to Main Menu...")
             return
 
         while True:
-            phone = input("Enter phone (10 digits): ")
-            if phone.upper() == "MENU":
+            contact_info["phone"] = input("Enter phone (10 digits): ")
+            if contact_info["phone"].upper() == "MENU":
                 print("\nAborting to Main Menu...")
                 return
-            if len(phone) != 10 or not phone.isdigit():
+            if len(contact_info["phone"]) != 10 or not contact_info["phone"].isdigit():
                 print("Invalid phone number. Please enter a 10-digit number.")
             else:
                 break
 
-        home_address = input("Enter home address: ")
-        if home_address.upper() == "MENU":
+        contact_info["home_address"] = input("Enter home address: ")
+        if contact_info["home_address"].upper() == "MENU":
             print("\nAborting to Main Menu...")
             return
 
         new_contact = Contact(
-            email=email,
-            full_name=full_name,
-            phone=phone,
-            home_address=home_address,
+            email=contact_info["email"],
+            full_name=contact_info["full_name"],
+            phone=contact_info["phone"],
+            home_address=contact_info["home_address"],
             user=user,
         )
         self.session.add(new_contact)

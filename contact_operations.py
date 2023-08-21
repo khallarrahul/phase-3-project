@@ -1,7 +1,10 @@
+# new code
 from models import Contact, User, Message, Base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from simple_term_menu import TerminalMenu
+import os
 
 
 def delete_contact_by_id(session: Session, contact_id):
@@ -175,18 +178,30 @@ class UserApp:
     def send_message(self, sender):
         if self.abort_with_menu():
             return
+
         self.view_contacts(sender)
-        receiver_id = input("Enter the ID of the contact to send the message to: ")
-        if receiver_id.upper() == "MENU":
+        receiver_phone_number = input(
+            "Enter the phone number of the contact to send the message to: "
+        )
+
+        if receiver_phone_number.upper() == "MENU":
             print("\nAborting to Main Menu...")
             return
-        receiver = self.session.query(Contact).get(receiver_id)
-        if not receiver:
+
+        receiver_user = (
+            self.session.query(User)
+            .filter_by(phone_number=receiver_phone_number)
+            .first()
+        )
+        if not receiver_user:
             print("Contact not found.")
             return
+
         message_text = input("Enter the message: ")
         new_message = Message(
-            sender_id=sender.id, receiver_id=receiver.id, message_text=message_text
+            sender_id=sender.id,
+            receiver_id=receiver_user.id,  # can you please use user_id from User table to reference to reciever_id in message table
+            message_text=message_text,
         )
         self.session.add(new_message)
         self.session.commit()
@@ -204,12 +219,10 @@ class UserApp:
             print("Messages sent:")
             for message in sent_messages:
                 receiver_contact = (
-                    self.session.query(Contact)
-                    .filter_by(id=message.receiver_id)
-                    .first()
+                    self.session.query(User).filter_by(id=message.receiver_id).first()
                 )
                 print(
-                    f"To: {receiver_contact.full_name}\n"
+                    f"To: {receiver_contact.first_name}\n"
                     f"Timestamp: {message.timestamp}\n"
                     f"Message: {message.message_text}\n"
                 )
@@ -243,41 +256,54 @@ class UserApp:
 
     def run_app(self):
         Base.metadata.create_all(bind=self.engine)
-        while True:
-            print("\nContact Manager App\n")
-            print("1. Signup\n2. Login\n3. Exit")
-            choice = input("Enter your choice: ")
+        main_menu_entries = ["Signup", "Login", "Exit"]
+        main_menu = TerminalMenu(main_menu_entries, title="Contact Manager App")
 
-            if choice == "1":
+        while True:
+            selected_main_option = main_menu.show()
+
+            if selected_main_option == 0:
                 self.signup()
-            elif choice == "2":
+            elif selected_main_option == 1:
                 user = self.login()
                 if user:
-                    while True:
-                        print(
-                            "1. Add Contact\n2. View Contacts\n3. Delete Contact\n4. Send Message\n5. Check Sent Messages\n6. View Received Messages\n7. Logout"
-                        )
-                        sub_choice = input("\nEnter your choice: ")
+                    sub_menu_entries = [
+                        "Add Contact",
+                        "View Contacts",
+                        "Delete Contact",
+                        "Send Message",
+                        "Check Sent Messages",
+                        "View Received Messages",
+                        "Logout",
+                    ]
+                    sub_menu = TerminalMenu(sub_menu_entries, title="User Menu")
 
-                        if sub_choice == "1":
+                    while True:
+                        os.system("clear")
+                        selected_sub_option = sub_menu.show()
+
+                        if selected_sub_option == 0:
                             self.add_contact(user)
-                        elif sub_choice == "2":
+                        elif selected_sub_option == 1:
                             self.view_contacts(user)
-                        elif sub_choice == "3":
+                            input("\nPress Enter to continue...")
+                        elif selected_sub_option == 2:
                             self.delete_contact(user)
-                        elif sub_choice == "4":
+                        elif selected_sub_option == 3:
                             self.send_message(user)
-                        elif sub_choice == "5":
+                        elif selected_sub_option == 4:
                             self.check_messages(user)
-                        elif sub_choice == "6":
+                            input("\nPress Enter to continue...")
+                        elif selected_sub_option == 5:
                             self.view_received_messages(user)
-                        elif sub_choice == "7":
-                            print("\n" * 40)
+                            input("\nPress Enter to continue...")
+                        elif selected_sub_option == 6:
+                            os.system("clear")
                             break
                         else:
                             print("Invalid choice. Please select a valid option.")
-            elif choice == "3":
-                print("\n" * 40)
+            elif selected_main_option == 2:
+                os.system("clear")
                 break
             else:
                 print("Invalid choice. Please select a valid option.")

@@ -1,5 +1,7 @@
-from models import Contact
+from models import Contact, User, Message, Base
 from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 def delete_contact_by_id(session: Session, contact_id):
@@ -12,14 +14,275 @@ def delete_contact_by_id(session: Session, contact_id):
         print("Contact not found.")
 
 
-# def abort_with_menu():
-#     print(
-#         "\n(Enter 'MENU' to return to the main menu or press 'ENTER' to move forward)"
-#     )
-#     menu_input = input()
-#     if menu_input.upper() == "MENU":
-#         print("\nAborting to Main Menu...\n")
-#         return True
-#     else:
-#         print("ENTER pressed. Continuing...\n")
-#         return False
+class UserApp:
+    def __init__(self):
+        self.engine = create_engine("sqlite:///database.db")
+        self.Session = sessionmaker(bind=self.engine)
+        self.session = self.Session()
+
+    def signup(self):
+        user_data = {}
+        user_data["first_name"] = input("Enter your first name: ")
+        user_data["last_name"] = input("Enter your last name: ")
+
+        while True:
+            user_data["phone_number"] = input("Enter your 10 digit phone number: ")
+            if (
+                len(user_data["phone_number"]) != 10
+                or not user_data["phone_number"].isdigit()
+            ):
+                print("Invalid phone number. Please enter a 10-digit number.")
+            else:
+                break
+
+        existing_number = (
+            self.session.query(User)
+            .filter_by(phone_number=user_data["phone_number"])
+            .first()
+        )
+
+        if existing_number:
+            print(
+                "Phone number already exists. Please choose a different phone number."
+            )
+            return
+
+        user_data["username"] = input("Enter a username: ")
+        existing_user = (
+            self.session.query(User).filter_by(username=user_data["username"]).first()
+        )
+
+        if existing_user:
+            print("Username already exists. Please choose a different username.")
+            return
+
+        password = input("Enter a password: ")
+        new_user = User(
+            first_name=user_data["first_name"],
+            last_name=user_data["last_name"],
+            username=user_data["username"],
+            phone_number=user_data["phone_number"],
+        )
+        new_user.set_password(password)
+
+        self.session.add(new_user)
+        self.session.commit()
+        print("User registered successfully!")
+
+    def login(self):
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+        user = self.session.query(User).filter_by(username=username).first()
+
+        if not user or not user.check_password(password):
+            print("Invalid username or password.")
+            return None
+        print("\n" * 40)
+        print(f"\nWelcome, {user.first_name}!")
+        return user
+
+    def abort_with_menu(self):
+        print(
+            "\n(Enter 'MENU' to return to the main menu or press 'ENTER' to move forward)"
+        )
+        menu_input = input()
+        if menu_input.upper() == "MENU":
+            print("\nAborting to Main Menu...\n")
+            return True
+        else:
+            print("ENTER pressed. Continuing...\n")
+            return False
+
+    def add_contact(self, user):
+        print("\nAdd Contact")
+        if self.abort_with_menu():
+            return
+
+        contact_info = {}
+        contact_info["full_name"] = input("Enter Full Name of Contact: ")
+        if contact_info["full_name"].upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
+
+        contact_info["email"] = input("Enter email: ")
+        if contact_info["email"].upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
+
+        while True:
+            contact_info["phone"] = input("Enter phone (10 digits): ")
+            if contact_info["phone"].upper() == "MENU":
+                print("\nAborting to Main Menu...")
+                return
+            if len(contact_info["phone"]) != 10 or not contact_info["phone"].isdigit():
+                print("Invalid phone number. Please enter a 10-digit number.")
+            else:
+                # Check if a contact with the same phone number already exists
+                existing_contact = (
+                    self.session.query(Contact)
+                    .filter_by(phone=contact_info["phone"], user=user)
+                    .first()
+                )
+                if existing_contact:
+                    print("Contact with the same phone number already exists.")
+                else:
+                    break
+
+        contact_info["home_address"] = input("Enter home address: ")
+        if contact_info["home_address"].upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
+
+        new_contact = Contact(
+            email=contact_info["email"],
+            full_name=contact_info["full_name"],
+            phone=contact_info["phone"],
+            home_address=contact_info["home_address"],
+            user=user,
+        )
+        self.session.add(new_contact)
+        self.session.commit()
+        print("Contact added successfully!")
+
+    def view_contacts(self, user):
+        print("\n View Contacts\n")
+        contacts = user.contacts
+
+        if not contacts:
+            print("You have no contacts.\n")
+        else:
+            for contact in contacts:
+                print(
+                    f"{contact.id}\n"
+                    f"{contact.full_name}\n"
+                    f"Email: {contact.email}\n"
+                    f"Phone: {contact.phone}\n"
+                    f"Home Address: {contact.home_address}\n"
+                )
+
+    def delete_contact(self, user):
+        if self.abort_with_menu():
+            return
+        from contact_operations import delete_contact_by_id
+
+        self.view_contacts(user)
+        contact_id = input("Enter the ID of the contact to delete: ")
+        if contact_id.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
+        delete_contact_by_id(self.session, int(contact_id))
+
+    def send_message(self, sender):
+        if self.abort_with_menu():
+            return
+        self.view_contacts(sender)
+        receiver_id = input("Enter the ID of the contact to send the message to: ")
+        if receiver_id.upper() == "MENU":
+            print("\nAborting to Main Menu...")
+            return
+        receiver = self.session.query(Contact).get(receiver_id)
+        if not receiver:
+            print("Contact not found.")
+            return
+        message_text = input("Enter the message: ")
+        new_message = Message(
+            sender_id=sender.id, receiver_id=receiver.id, message_text=message_text
+        )
+        self.session.add(new_message)
+        self.session.commit()
+        print("Message sent successfully!")
+
+    def check_messages(self, user):
+        sent_messages = (
+            self.session.query(Message)
+            .filter_by(sender_id=user.id)  # Filter messages sent by the logged-in user
+            .order_by(Message.timestamp)
+            .all()
+        )
+
+        if sent_messages:
+            print("Messages sent:")
+            for message in sent_messages:
+                receiver_contact = (
+                    self.session.query(Contact)
+                    .filter_by(id=message.receiver_id)
+                    .first()
+                )
+                print(
+                    f"To: {receiver_contact.full_name}\n"
+                    f"Timestamp: {message.timestamp}\n"
+                    f"Message: {message.message_text}\n"
+                )
+        else:
+            print("No messages sent.")
+
+    def view_received_messages(self, user):
+        received_messages = (
+            self.session.query(Message)
+            .join(Contact, Message.sender_id == Contact.id)
+            .filter(
+                Contact.phone == user.phone_number
+            )  # I want to filter by reciever's messages
+            .order_by(Message.timestamp)
+            .all()
+        )
+
+        if received_messages:
+            print("\nMessages received:")
+            for message in received_messages:
+                sender_contact = (
+                    self.session.query(User).filter_by(id=message.sender_id).first()
+                )
+                print(
+                    f"From: {sender_contact.first_name}, {sender_contact.last_name}\n"
+                    f"Timestamp: {message.timestamp}\n"
+                    f"Message: {message.message_text}\n"
+                )
+        else:
+            print("\nNo messages received.\n")
+
+    def run_app(self):
+        Base.metadata.create_all(bind=self.engine)
+        while True:
+            print("\nContact Manager App\n")
+            print("1. Signup\n2. Login\n3. Exit")
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                self.signup()
+            elif choice == "2":
+                user = self.login()
+                if user:
+                    while True:
+                        print(
+                            "1. Add Contact\n2. View Contacts\n3. Delete Contact\n4. Send Message\n5. Check Sent Messages\n6. View Received Messages\n7. Logout"
+                        )
+                        sub_choice = input("\nEnter your choice: ")
+
+                        if sub_choice == "1":
+                            self.add_contact(user)
+                        elif sub_choice == "2":
+                            self.view_contacts(user)
+                        elif sub_choice == "3":
+                            self.delete_contact(user)
+                        elif sub_choice == "4":
+                            self.send_message(user)
+                        elif sub_choice == "5":
+                            self.check_messages(user)
+                        elif sub_choice == "6":
+                            self.view_received_messages(user)
+                        elif sub_choice == "7":
+                            print("\n" * 40)
+                            break
+                        else:
+                            print("Invalid choice. Please select a valid option.")
+            elif choice == "3":
+                print("\n" * 40)
+                break
+            else:
+                print("Invalid choice. Please select a valid option.")
+
+
+if __name__ == "__main__":
+    app = UserApp()
+    app.run_app()

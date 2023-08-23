@@ -199,7 +199,7 @@ class UserApp:
         message_text = input("Enter the message: ")
         new_message = Message(
             sender_id=sender.id,
-            receiver_id=receiver_user.id,  # can you please use user_id from User table to reference to reciever_id in message table
+            receiver_id=receiver_user.id,
             message_text=message_text,
         )
         self.session.add(new_message)
@@ -232,9 +232,7 @@ class UserApp:
         received_messages = (
             self.session.query(Message)
             .join(Contact, Message.sender_id == Contact.id)
-            .filter(
-                Contact.phone == user.phone_number
-            )  # I want to filter by reciever's messages
+            .filter(Contact.phone == user.phone_number)
             .order_by(Message.timestamp)
             .all()
         )

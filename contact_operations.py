@@ -1,4 +1,3 @@
-# new code
 from models import Contact, User, Message, Base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine

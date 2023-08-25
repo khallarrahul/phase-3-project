@@ -119,7 +119,6 @@ class UserApp:
             if len(contact_info["phone"]) != 10 or not contact_info["phone"].isdigit():
                 print("Invalid phone number. Please enter a 10-digit number.")
             else:
-                # Check if a contact with the same phone number already exists
                 existing_contact = (
                     self.session.query(Contact)
                     .filter_by(phone=contact_info["phone"], user=user)

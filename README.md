@@ -13,3 +13,4 @@ The Contact Manager App is a Python application designed to manage user contacts
 - License
 
 ## Introduction
+The Contact Manager App is built using SQLAlchemy, a powerful SQL toolkit and Object-Relational Mapping (ORM) library for Python. It allows users to register, log in, add and delete contacts, send messages, and manage their interactions.

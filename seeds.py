@@ -9,7 +9,7 @@ engine = create_engine("sqlite:///database.db")
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Delete existing data from all tables
+
 session.query(Message).delete()
 session.query(Contact).delete()
 session.query(User).delete()

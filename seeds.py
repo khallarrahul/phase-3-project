@@ -40,7 +40,7 @@ for message_data in messages_data:
     new_message = Message(**message_data)
     session.add(new_message)
 
-# Commit the changes to the database
+
 session.commit()
 
 print("Seeding complete!")

@@ -14,7 +14,7 @@ session.query(Message).delete()
 session.query(Contact).delete()
 session.query(User).delete()
 
-# Seed users
+
 users_data = []
 
 users = []

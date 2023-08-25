@@ -252,6 +252,7 @@ class UserApp:
 
     def run_app(self):
         Base.metadata.create_all(bind=self.engine)
+        print("\n" * 40)
         main_menu_entries = ["Signup", "Login", "Exit"]
         main_menu = TerminalMenu(main_menu_entries, title="Contact Manager App")
 

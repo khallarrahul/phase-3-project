@@ -24,7 +24,7 @@ for user_data in users_data:
     users.append(new_user)
     session.add(new_user)
 
-# Seed contacts
+
 contacts_data = []
 
 contacts = []

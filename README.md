@@ -26,3 +26,6 @@ The Contact Manager App is built using SQLAlchemy, a powerful SQL toolkit and Ob
 - Git clone the repository into your local computer and run "pipenv install" in your terminal.
 - After installation, run pipenv shell that would initialize shell environment where you can run the whole application.
 - In your shell, type "python contact_operations.py", this would initialize the application and you would be prompted to login/signup page.
+- Thereafter, you could use the arrow keys to scroll up and down and "enter" to select any menu option.
+- After signing up and logging in, when doing any transaction, you can type "MENU" in order to go back to the main menu for user profile.
+

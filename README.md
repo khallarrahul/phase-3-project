@@ -35,3 +35,8 @@ This project was created as a learning exercise, and it would not have been poss
 - Flatiron School community- teachers and fellow students
 - Stack overflow for Python
 - Python library
+
+## Non Technical walkthrough video
+Check video here:
+https://www.loom.com/share/2d8801f2a4584701b91edf5b40b00b55?sid=d1723971-3367-4d95-8058-eb9decd98d98
+

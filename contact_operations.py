@@ -208,7 +208,7 @@ class UserApp:
     def check_messages(self, user):
         sent_messages = (
             self.session.query(Message)
-            .filter_by(sender_id=user.id)  # Filter messages sent by the logged-in user
+            .filter_by(sender_id=user.id)
             .order_by(Message.timestamp)
             .all()
         )

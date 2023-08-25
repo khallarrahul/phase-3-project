@@ -29,3 +29,9 @@ The Contact Manager App is built using SQLAlchemy, a powerful SQL toolkit and Ob
 - Thereafter, you could use the arrow keys to scroll up and down and "enter" to select any menu option.
 - After signing up and logging in, when doing any transaction, you can type "MENU" in order to go back to the main menu for user profile.
 
+## Acknowledgements
+This project was created as a learning exercise, and it would not have been possible without the resources and support of the following:
+
+- Flatiron School community- teachers and fellow students
+- Stack overflow for Python
+- Python library

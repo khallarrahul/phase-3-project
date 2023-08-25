@@ -33,7 +33,7 @@ for contact_data in contacts_data:
     contacts.append(new_contact)
     session.add(new_contact)
 
-# Seed messages
+
 messages_data = []
 
 for message_data in messages_data:

@@ -267,7 +267,14 @@ class UserApp:
         Base.metadata.create_all(bind=self.engine)
         print("\n" * 40)
         main_menu_entries = ["Signup", "Login", "Exit"]
-        main_menu = TerminalMenu(main_menu_entries, title="Contact Manager App")
+        main_menu = TerminalMenu(
+            main_menu_entries,
+            title="""
++-+-+-+ +-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+
+|T|h|e| |C|o|n|t|a|c|t| |M|a|n|a|g|e|r|
++-+-+-+ +-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+
+""",
+        )
 
         while True:
             selected_main_option = main_menu.show()

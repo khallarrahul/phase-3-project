@@ -49,7 +49,7 @@ class UserApp:
 
         if existing_number:
             print(
-                "Phone number already exists. Please choose a different phone number."
+                "This Phone number already exists. Please choose a different phone number."
             )
             return
 
@@ -59,10 +59,10 @@ class UserApp:
         )
 
         if existing_user:
-            print("Username already exists. Please choose a different username.")
+            print("This Username already exists. Please choose a different username.")
             return
 
-        password = input("Enter a password: ")
+        password = input("Enter your password: ")
         new_user = User(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],

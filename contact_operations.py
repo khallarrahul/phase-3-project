@@ -82,7 +82,7 @@ class UserApp:
         user = self.session.query(User).filter_by(username=username).first()
 
         if not user or not user.check_password(password):
-            print("Invalid username or password.")
+            print("Incorrect username or password.")
             return None
         print("\n" * 40)
         print(f"\nWelcome, {user.first_name}!")
@@ -91,7 +91,7 @@ class UserApp:
     # Function to handle user menu abort action
     def abort_with_menu(self):
         print(
-            "\n(Enter 'MENU' to return to the main menu or press 'ENTER' to move forward)"
+            "\n(Enter 'MENU' to return to the main menu or press 'ENTER'/ 'Any key' to move forward)"
         )
         menu_input = input()
         if menu_input.upper() == "MENU":

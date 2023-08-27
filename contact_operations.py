@@ -78,7 +78,7 @@ class UserApp:
 
         self.session.add(new_user)
         self.session.commit()
-        print("User registered successfully!")
+        print(green("User registered successfully!"))
 
     # Function for user signup
     def login(self):
@@ -96,7 +96,7 @@ class UserApp:
     # Function to handle user menu abort action
     def abort_with_menu(self):
         print(
-            green(
+            (
                 "\n(Enter 'MENU' to return to the main menu or press 'ENTER'/ 'Any key' to move forward)"
             )
         )
@@ -131,7 +131,7 @@ class UserApp:
                 print("\nAborting to Main Menu...")
                 return
             if len(contact_info["phone"]) != 10 or not contact_info["phone"].isdigit():
-                print("Invalid phone number. Please enter a 10-digit number.")
+                print(red("Invalid phone number. Please enter a 10-digit number."))
             else:
                 existing_contact = (
                     self.session.query(Contact)
@@ -139,7 +139,7 @@ class UserApp:
                     .first()
                 )
                 if existing_contact:
-                    print("Contact with the same phone number already exists.")
+                    print(red("Contact with the same phone number already exists."))
                 else:
                     break
 
@@ -157,7 +157,7 @@ class UserApp:
         )
         self.session.add(new_contact)
         self.session.commit()
-        print("Contact added successfully!")
+        print(green("Contact added successfully!"))
 
     # Function to view user's contacts
     def view_contacts(self, user):
@@ -209,7 +209,7 @@ class UserApp:
             .first()
         )
         if not receiver_user:
-            print("Contact not found.")
+            print(red("Contact not found."))
             return
 
         message_text = input("Enter the message: ")
@@ -220,7 +220,7 @@ class UserApp:
         )
         self.session.add(new_message)
         self.session.commit()
-        print("Message sent successfully!")
+        print(green("Message sent successfully!"))
 
     # Function to check sent messages
     def check_messages(self, user):
@@ -243,7 +243,7 @@ class UserApp:
                     f"Message: {message.message_text}\n"
                 )
         else:
-            print("No messages sent.")
+            print(red("No messages sent."))
 
     # Function to view received messages
     def view_received_messages(self, user):
@@ -267,7 +267,7 @@ class UserApp:
                     f"Message: {message.message_text}\n"
                 )
         else:
-            print("\nNo messages received.\n")
+            print(red("\nNo messages received.\n"))
 
     # Main application loop
     def run_app(self):
@@ -334,7 +334,7 @@ class UserApp:
                 os.system("clear")
                 break
             else:
-                print("Invalid choice. Please select a valid option.")
+                print(red("Invalid choice. Please select a valid option."))
 
 
 # Run the application

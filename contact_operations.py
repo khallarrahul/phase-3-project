@@ -6,6 +6,7 @@ from simple_term_menu import TerminalMenu
 import os
 
 
+# Function to delete a contact by its ID
 def delete_contact_by_id(session: Session, contact_id):
     contact = session.query(Contact).get(contact_id)
     if contact:
@@ -16,12 +17,15 @@ def delete_contact_by_id(session: Session, contact_id):
         print("Contact not found.")
 
 
+# Main application class
 class UserApp:
     def __init__(self):
+        # Initialize the database connection
         self.engine = create_engine("sqlite:///database.db")
         self.Session = sessionmaker(bind=self.engine)
         self.session = self.Session()
 
+    # Function for user signup
     def signup(self):
         user_data = {}
         user_data["first_name"] = input("Enter your first name: ")
@@ -71,6 +75,7 @@ class UserApp:
         self.session.commit()
         print("User registered successfully!")
 
+    # Function for user signup
     def login(self):
         username = input("Enter your username: ")
         password = input("Enter your password: ")
@@ -83,6 +88,7 @@ class UserApp:
         print(f"\nWelcome, {user.first_name}!")
         return user
 
+    # Function to handle user menu abort action
     def abort_with_menu(self):
         print(
             "\n(Enter 'MENU' to return to the main menu or press 'ENTER' to move forward)"
@@ -95,6 +101,7 @@ class UserApp:
             print("ENTER pressed. Continuing...\n")
             return False
 
+    # Function to add a contact
     def add_contact(self, user):
         print("\nAdd Contact")
         if self.abort_with_menu():
@@ -145,6 +152,7 @@ class UserApp:
         self.session.commit()
         print("Contact added successfully!")
 
+    # Function to view user's contacts
     def view_contacts(self, user):
         print("\n View Contacts\n")
         contacts = user.contacts
@@ -161,6 +169,7 @@ class UserApp:
                     f"Home Address: {contact.home_address}\n"
                 )
 
+    # Function to delete a contact
     def delete_contact(self, user):
         if self.abort_with_menu():
             return
@@ -173,6 +182,7 @@ class UserApp:
             return
         delete_contact_by_id(self.session, int(contact_id))
 
+    # Function to send a message
     def send_message(self, sender):
         if self.abort_with_menu():
             return
@@ -205,6 +215,7 @@ class UserApp:
         self.session.commit()
         print("Message sent successfully!")
 
+    # Function to check sent messages
     def check_messages(self, user):
         sent_messages = (
             self.session.query(Message)
@@ -227,6 +238,7 @@ class UserApp:
         else:
             print("No messages sent.")
 
+    # Function to view received messages
     def view_received_messages(self, user):
         received_messages = (
             self.session.query(Message)
@@ -250,6 +262,7 @@ class UserApp:
         else:
             print("\nNo messages received.\n")
 
+    # Main application loop
     def run_app(self):
         Base.metadata.create_all(bind=self.engine)
         print("\n" * 40)
@@ -306,6 +319,7 @@ class UserApp:
                 print("Invalid choice. Please select a valid option.")
 
 
+# Run the application
 if __name__ == "__main__":
     app = UserApp()
     app.run_app()

@@ -5,11 +5,10 @@ The Contact Manager App is a Python application designed to manage user contacts
 
 ## Table of Contents
 - Introduction
-- Features
 - Technologies Used
-- Getting Started
 - Usage
 - Acknowledgements
+- Non Technical walkthrough video
 - License
 
 ## Introduction

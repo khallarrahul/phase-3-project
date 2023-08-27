@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from simple_term_menu import TerminalMenu
 import os
+from prettycli import red, green
 
 
 # Function to delete a contact by its ID
@@ -12,9 +13,9 @@ def delete_contact_by_id(session: Session, contact_id):
     if contact:
         session.delete(contact)
         session.commit()
-        print("Contact deleted successfully.")
+        print(green("Contact deleted successfully."))
     else:
-        print("Contact not found.")
+        print(red("Contact not found."))
 
 
 # Main application class
@@ -37,7 +38,7 @@ class UserApp:
                 len(user_data["phone_number"]) != 10
                 or not user_data["phone_number"].isdigit()
             ):
-                print("Invalid phone number. Please enter a 10-digit number.")
+                print(red("Invalid phone number. Please enter a 10-digit number."))
             else:
                 break
 
@@ -49,7 +50,9 @@ class UserApp:
 
         if existing_number:
             print(
-                "This Phone number already exists. Please choose a different phone number."
+                red(
+                    "This Phone number already exists. Please choose a different phone number."
+                )
             )
             return
 
@@ -59,7 +62,9 @@ class UserApp:
         )
 
         if existing_user:
-            print("This Username already exists. Please choose a different username.")
+            print(
+                red("This Username already exists. Please choose a different username.")
+            )
             return
 
         password = input("Enter your password: ")
@@ -82,7 +87,7 @@ class UserApp:
         user = self.session.query(User).filter_by(username=username).first()
 
         if not user or not user.check_password(password):
-            print("Incorrect username or password.")
+            print(red("Incorrect username or password."))
             return None
         print("\n" * 40)
         print(f"\nWelcome, {user.first_name}!")
@@ -91,7 +96,9 @@ class UserApp:
     # Function to handle user menu abort action
     def abort_with_menu(self):
         print(
-            "\n(Enter 'MENU' to return to the main menu or press 'ENTER'/ 'Any key' to move forward)"
+            green(
+                "\n(Enter 'MENU' to return to the main menu or press 'ENTER'/ 'Any key' to move forward)"
+            )
         )
         menu_input = input()
         if menu_input.upper() == "MENU":

@@ -1,8 +1,6 @@
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Integer, Column, String, ForeignKey
 from passlib.hash import bcrypt_sha256
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import DateTime
@@ -11,6 +9,7 @@ from sqlalchemy import DateTime
 Base = declarative_base()
 
 
+# Define the User class representing users in the system
 class User(Base):
     __tablename__ = "users"
 
@@ -40,6 +39,7 @@ class User(Base):
         )
 
 
+# Define the Contact class representing user's contacts
 class Contact(Base):
     __tablename__ = "contacts"
 
@@ -60,6 +60,7 @@ class Contact(Base):
         )
 
 
+# Define the Message class representing messages between users and contacts
 class Message(Base):
     __tablename__ = "messages"
 

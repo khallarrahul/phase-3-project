@@ -17,6 +17,7 @@ The Contact Manager App is built using SQLAlchemy, a powerful SQL toolkit and Ob
 ## Technologies Used
 - SQLAlchemy
 - Passlib(bcrypt_sha256)
+- PrettyCli lib
 - simple_term_menu
 - SQLite database
 - Python
